@@ -1,7 +1,12 @@
 import { nanoid } from 'nanoid';
 import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact, getContacts } from '../../redux/contactsSlice';
 
 export const ContactForm = ({ onSubmit, title }) => {
+  const contacts = useSelector(getContacts);
+  const dispatch = useDispatch();
+
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
@@ -21,11 +26,20 @@ export const ContactForm = ({ onSubmit, title }) => {
   const handleSubmit = e => {
     e.preventDefault();
 
-    if (name.trim() === '') {
-      alert('Please enter a valid name.');
+    if (
+      contacts.some(
+        contact => contact.name === name || contact.number === number
+      )
+    ) {
+      alert('This contact already exists.');
       return;
     }
-    onSubmit({ name, number });
+
+    if (name.trim() === '' || number.trim() === '') {
+      alert('Please enter a valid name and number.');
+      return;
+    }
+    dispatch(addContact({ name, number }));
     reset();
   };
 
